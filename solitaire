@@ -1,0 +1,79 @@
+// Game setup
+const deck = [];
+const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+const values = ['ace', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'jack', 'queen', 'king'];
+
+// Create deck
+for (let suit of suits) {
+    for (let value of values) {
+        deck.push({ suit, value });
+    }
+}
+
+// Shuffle deck
+deck.sort(() => Math.random() - 0.5);
+
+// Create tableau piles
+const tableau = [[], [], [], [], [], [], []];
+for (let i = 0; i < 7; i++) {
+    for (let j = i; j < 7; j++) {
+        tableau[j].push(deck.pop());
+    }
+}
+
+// Create foundation piles
+const foundation = [[], [], [], []];
+
+// Create draggable cards
+const draggableCards = [];
+for (let pile of tableau) {
+    draggableCards.push(pile[pile.length - 1]);
+}
+
+// Game logic
+function moveCard(card, fromPile, toPile) {
+    // Check if move is valid
+    if (validMove(card, toPile)) {
+        // Remove card from fromPile
+        fromPile.pop();
+        // Add card to toPile
+        toPile.push(card);
+        // Update draggable cards
+        updateDraggableCards();
+    }
+}
+
+function validMove(card, pile) {
+    // Check if pile is empty
+    if (pile.length === 0) {
+        return true;
+    }
+    // Check if card is one value lower and opposite color of top card in pile
+    const topCard = pile[pile.length - 1];
+    if (card.value === 'ace' && topCard.value === 'king') {
+        return true;
+    }
+    if (values.indexOf(card.value) === values.indexOf(topCard.value) - 1) {
+        if (card.suit === 'hearts' || card.suit === 'diamonds') {
+            if (topCard.suit === 'clubs' || topCard.suit === 'spades') {
+                return true;
+            }
+        }
+        if (card.suit === 'clubs' || card.suit === 'spades') {
+            if (topCard.suit === 'hearts' || topCard.suit === 'diamonds') {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function updateDraggableCards() {
+    draggableCards = [];
+    for (let pile of tableau) {
+        if (pile.length > 0) {
+            draggableCards.push(pile[pile.length - 1]);
+        }
+    }
+}
+
